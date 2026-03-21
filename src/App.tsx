@@ -1,7 +1,8 @@
-import { useState, FormEvent } from 'react'
+import { useState } from 'react'
+import type { FormEvent, CSSProperties } from 'react'
 import { supabase } from './supabase'
 
-const styles = {
+const styles: Record<string, CSSProperties> = {
   page: {
     minHeight: '100vh',
     display: 'flex',
@@ -89,7 +90,7 @@ export default function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
   const [loggedIn, setLoggedIn] = useState(false)
   const [clientName, setClientName] = useState('')
 
@@ -127,13 +128,7 @@ export default function App() {
           <div style={styles.eyebrow}>Artistry Studios®</div>
           <div style={styles.heading}>Welcome, {clientName}</div>
           <div style={styles.sub}>Your project portal is loading...</div>
-          <div style={{
-            padding: '16px',
-            backgroundColor: '#e1f5ee',
-            borderRadius: '8px',
-            fontSize: '13px',
-            color: '#0f6e56'
-          }}>
+          <div style={styles.success}>
             Login successful! Dashboard coming next session.
           </div>
         </div>
@@ -150,7 +145,6 @@ export default function App() {
 
         <form onSubmit={handleLogin}>
           {error && <div style={styles.error}>{error}</div>}
-
           <label style={styles.label}>Email</label>
           <input
             style={styles.input}
@@ -160,7 +154,6 @@ export default function App() {
             onChange={e => setEmail(e.target.value)}
             required
           />
-
           <label style={styles.label}>Password</label>
           <input
             style={styles.input}
@@ -170,7 +163,6 @@ export default function App() {
             onChange={e => setPassword(e.target.value)}
             required
           />
-
           <button style={styles.button} type="submit" disabled={loading}>
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
