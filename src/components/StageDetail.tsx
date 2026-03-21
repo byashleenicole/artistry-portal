@@ -105,7 +105,6 @@ function AssetCard({ asset, clientId }: { asset: Asset; clientId: string }) {
     await loadComments()
   }
 
-  const driveUrl = asset.drive_url
 
   return (
     <div style={styles.assetCard}>

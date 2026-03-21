@@ -171,7 +171,7 @@ function getPill(status: string) {
   }
 }
 
-export default function ProjectDashboard({ project, clientId, clientName, onBack }: Props) {
+export default function ProjectDashboard({ project, clientId, onBack }: Props) {
   const [stages, setStages] = useState<Stage[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null)
