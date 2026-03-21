@@ -1,6 +1,24 @@
 import { useState } from 'react'
 import type { FormEvent, CSSProperties } from 'react'
 import { supabase } from './supabase'
+import ProjectSelector from './components/ProjectSelector'
+import ProjectDashboard from './components/ProjectDashboard'
+
+interface Client {
+  id: string
+  full_name: string
+}
+
+interface Project {
+  id: string
+  name: string
+  package_type: string
+  current_stage: string
+  status: string
+  started_at: string
+}
+
+type Screen = 'login' | 'projects' | 'dashboard'
 
 const styles: Record<string, CSSProperties> = {
   page: {
@@ -76,14 +94,6 @@ const styles: Record<string, CSSProperties> = {
     backgroundColor: '#fcebeb',
     borderRadius: '8px',
   },
-  success: {
-    fontSize: '13px',
-    color: '#0f6e56',
-    marginBottom: '12px',
-    padding: '10px 12px',
-    backgroundColor: '#e1f5ee',
-    borderRadius: '8px',
-  },
 }
 
 export default function App() {
@@ -91,18 +101,16 @@ export default function App() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [loggedIn, setLoggedIn] = useState(false)
-  const [clientName, setClientName] = useState('')
+  const [screen, setScreen] = useState<Screen>('login')
+  const [client, setClient] = useState<Client | null>(null)
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
   async function handleLogin(e: FormEvent) {
     e.preventDefault()
     setLoading(true)
     setError(null)
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
       setError(error.message)
@@ -112,27 +120,41 @@ export default function App() {
 
     const { data: clientData } = await supabase
       .from('clients')
-      .select('full_name')
+      .select('id, full_name')
       .eq('auth_user_id', data.user.id)
       .single()
 
-    setClientName(clientData?.full_name || 'there')
-    setLoggedIn(true)
+    if (clientData) {
+      setClient(clientData)
+      setScreen('projects')
+    } else {
+      setError('No client account found for this email.')
+    }
+
     setLoading(false)
   }
 
-  if (loggedIn) {
+  if (screen === 'projects' && client) {
     return (
-      <div style={styles.page}>
-        <div style={styles.card}>
-          <div style={styles.eyebrow}>Artistry Studios®</div>
-          <div style={styles.heading}>Welcome, {clientName}</div>
-          <div style={styles.sub}>Your project portal is loading...</div>
-          <div style={styles.success}>
-            Login successful! Dashboard coming next session.
-          </div>
-        </div>
-      </div>
+      <ProjectSelector
+        clientId={client.id}
+        clientName={client.full_name}
+        onSelectProject={(project) => {
+          setSelectedProject(project)
+          setScreen('dashboard')
+        }}
+      />
+    )
+  }
+
+  if (screen === 'dashboard' && client && selectedProject) {
+    return (
+      <ProjectDashboard
+        project={selectedProject}
+        clientId={client.id}
+        clientName={client.full_name}
+        onBack={() => setScreen('projects')}
+      />
     )
   }
 
@@ -142,7 +164,6 @@ export default function App() {
         <div style={styles.eyebrow}>Artistry Studios®</div>
         <div style={styles.heading}>Your brand, delivered.</div>
         <div style={styles.sub}>Sign in to access your project portal</div>
-
         <form onSubmit={handleLogin}>
           {error && <div style={styles.error}>{error}</div>}
           <label style={styles.label}>Email</label>
@@ -167,7 +188,6 @@ export default function App() {
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
-
         <div style={{ fontSize: '11px', color: '#888780', textAlign: 'center', marginTop: '16px' }}>
           Only active clients have access
         </div>
