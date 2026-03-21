@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react'
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
+import StageDetail from './StageDetail'
 
 interface Project {
   id: string
@@ -79,6 +80,8 @@ const styles: Record<string, CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    cursor: 'pointer',
+    transition: 'border-color 0.15s',
   },
   stageName: {
     fontSize: '14px',
@@ -159,7 +162,7 @@ function getProgress(stage: string): number {
   return Math.round((index / (stageOrder.length - 1)) * 100)
 }
 
-function getPill(status: string, styles: Record<string, CSSProperties>) {
+function getPill(status: string) {
   switch (status) {
     case 'approved': return <span style={styles.pillApproved}>Approved</span>
     case 'in_progress': return <span style={styles.pillInProgress}>In progress</span>
@@ -168,23 +171,39 @@ function getPill(status: string, styles: Record<string, CSSProperties>) {
   }
 }
 
-export default function ProjectDashboard({ project, clientId, onBack }: Props) {
+export default function ProjectDashboard({ project, clientId, clientName, onBack }: Props) {
   const [stages, setStages] = useState<Stage[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedStage, setSelectedStage] = useState<Stage | null>(null)
   const progress = getProgress(project.current_stage)
 
-  useEffect(() => {
-    async function loadStages() {
-      const { data } = await supabase
-        .from('stages')
-        .select('*')
-        .eq('project_id', project.id)
-        .order('order_index', { ascending: true })
-      setStages(data || [])
-      setLoading(false)
-    }
-    loadStages()
-  }, [project.id])
+  async function loadStages() {
+    const { data } = await supabase
+      .from('stages')
+      .select('*')
+      .eq('project_id', project.id)
+      .order('order_index', { ascending: true })
+    setStages(data || [])
+    setLoading(false)
+  }
+
+  useEffect(() => { loadStages() }, [project.id])
+
+  if (selectedStage) {
+    return (
+      <StageDetail
+        stage={selectedStage}
+        clientId={clientId}
+        onBack={() => {
+          setSelectedStage(null)
+          loadStages()
+        }}
+        onApproved={() => {
+          loadStages()
+        }}
+      />
+    )
+  }
 
   return (
     <div style={styles.page}>
@@ -208,7 +227,13 @@ export default function ProjectDashboard({ project, clientId, onBack }: Props) {
           </div>
         )}
         {stages.map(stage => (
-          <div key={stage.id} style={styles.stageCard}>
+          <div
+            key={stage.id}
+            style={styles.stageCard}
+            onClick={() => setSelectedStage(stage)}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = '#888780')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = '#d3d1c7')}
+          >
             <div>
               <div style={styles.stageName}>{stage.name}</div>
               {stage.approved_at && (
@@ -217,7 +242,7 @@ export default function ProjectDashboard({ project, clientId, onBack }: Props) {
                 </div>
               )}
             </div>
-            {getPill(stage.status, styles)}
+            {getPill(stage.status)}
           </div>
         ))}
       </div>
