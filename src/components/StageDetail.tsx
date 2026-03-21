@@ -119,16 +119,7 @@ function AssetCard({ asset, clientId }: { asset: Asset; clientId: string }) {
         <span style={styles.fileTag}>{asset.file_type || 'FILE'}</span>
       </div>
 
-      {driveUrl && (
-        
-          href={driveUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={styles.downloadBtn}
-        >
-          View / download
-        </a>
-      )}
+      {asset.drive_url && <a href={asset.drive_url} style={styles.downloadBtn}>View / download</a>}
 
       <div style={styles.divider} />
       <div style={styles.commentLabel}>Feedback</div>
