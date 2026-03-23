@@ -2,6 +2,8 @@ import type { CSSProperties } from 'react'
 import { useEffect, useState } from 'react'
 import { supabase } from '../supabase'
 import StageDetail from './StageDetail'
+import ClientHeader from './ClientHeader'
+
 
 interface Project {
   id: string
@@ -25,6 +27,8 @@ interface Props {
   clientId: string
   clientName: string
   onBack: () => void
+  onSchedule: () => void
+
 }
 
 const styles: Record<string, CSSProperties> = {
@@ -171,8 +175,7 @@ function getPill(status: string) {
   }
 }
 
-export default function ProjectDashboard({ project, clientId, onBack }: Props) {
-  const [stages, setStages] = useState<Stage[]>([])
+export default function ProjectDashboard({ project, clientId, clientName, onBack, onSchedule }: Props) {  const [stages, setStages] = useState<Stage[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null)
   const progress = getProgress(project.current_stage)
@@ -194,12 +197,14 @@ export default function ProjectDashboard({ project, clientId, onBack }: Props) {
       <StageDetail
         stage={selectedStage}
         clientId={clientId}
+        clientName={clientName}
         onBack={() => {
           setSelectedStage(null)
           loadStages()
         }}
         onApproved={() => {
           loadStages()
+          onSchedule={onSchedule}
         }}
       />
     )
@@ -209,9 +214,12 @@ export default function ProjectDashboard({ project, clientId, onBack }: Props) {
 
   return (
     <div style={styles.page}>
+      <ClientHeader
+      clientName={clientName}
+      activeTab="projects"
+      onNavigate={(tab) => { if (tab === 'schedule') onSchedule() }}
+    />
       <div style={styles.inner}>
-        <div style={styles.back} onClick={onBack}>← All projects</div>
-        <div style={styles.eyebrow}>Artistry Studios®</div>
         <div style={styles.heading}>{project.name}</div>
         <div style={styles.packageType}>{project.package_type || 'Brand project'}</div>
 

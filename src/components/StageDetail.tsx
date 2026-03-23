@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { supabase } from '../supabase'
+import ClientHeader from './ClientHeader'
+
 
 interface Stage {
   id: string
@@ -30,8 +32,10 @@ interface Comment {
 interface Props {
   stage: Stage
   clientId: string
+  clientName: string
   onBack: () => void
   onApproved: () => void
+  onSchedule: () => void
 }
 
 const styles: Record<string, CSSProperties> = {
@@ -200,7 +204,7 @@ function AssetCard({ asset, clientId }: { asset: Asset; clientId: string }) {
   )
 }
 
-export default function StageDetail({ stage, clientId, onBack, onApproved }: Props) {
+export default function StageDetail({ stage, clientId, clientName, onBack, onApproved, onSchedule }: Props) {
   const [assets, setAssets] = useState<Asset[]>([])
   const [loading, setLoading] = useState(true)
   const [approving, setApproving] = useState(false)
@@ -232,6 +236,11 @@ export default function StageDetail({ stage, clientId, onBack, onApproved }: Pro
 
   return (
     <div style={styles.page}>
+      <ClientHeader
+      clientName={clientName}
+      activeTab="projects"
+      onNavigate={(tab) => { if (tab === 'schedule') onSchedule() }}
+    />
       <div style={styles.inner}>
         <div style={styles.back} onClick={onBack}>Back to project</div>
         <div style={styles.eyebrow}>Artistry Studios</div>

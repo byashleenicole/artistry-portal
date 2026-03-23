@@ -185,6 +185,7 @@ export default function App() {
         clientId={client.id}
         clientName={client.full_name}
         onBack={() => setScreen('projects')}
+        onSchedule={() => setScreen('schedule')}
       />
     )
   }
