@@ -175,7 +175,7 @@ function getPill(status: string) {
   }
 }
 
-export default function ProjectDashboard({ project, clientId, clientName, onBack, onSchedule }: Props) {  const [stages, setStages] = useState<Stage[]>([])
+export default function ProjectDashboard({ project, clientId, clientName, onSchedule }: Props) {  const [stages, setStages] = useState<Stage[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedStage, setSelectedStage] = useState<Stage | null>(null)
   const progress = getProgress(project.current_stage)
@@ -204,8 +204,8 @@ export default function ProjectDashboard({ project, clientId, clientName, onBack
         }}
         onApproved={() => {
           loadStages()
-          onSchedule={onSchedule}
         }}
+        onSchedule={onSchedule}
       />
     )
   }
