@@ -3,10 +3,12 @@ import type { FormEvent, CSSProperties } from 'react'
 import { supabase } from './supabase'
 import ProjectSelector from './components/ProjectSelector'
 import ProjectDashboard from './components/ProjectDashboard'
+import AdminDashboard from './components/AdminDashboard'
 
 interface Client {
   id: string
   full_name: string
+  is_admin: boolean
 }
 
 interface Project {
@@ -18,7 +20,7 @@ interface Project {
   started_at: string
 }
 
-type Screen = 'login' | 'projects' | 'dashboard'
+type Screen = 'login' | 'projects' | 'dashboard' | 'admin'
 
 const styles: Record<string, CSSProperties> = {
   page: {
@@ -120,18 +122,26 @@ export default function App() {
 
     const { data: clientData } = await supabase
       .from('clients')
-      .select('id, full_name')
+      .select('id, full_name, is_admin')
       .eq('auth_user_id', data.user.id)
       .single()
 
     if (clientData) {
       setClient(clientData)
-      setScreen('projects')
+      if (clientData.is_admin) {
+        setScreen('admin')
+      } else {
+        setScreen('projects')
+      }
     } else {
       setError('No client account found for this email.')
     }
 
     setLoading(false)
+  }
+
+  if (screen === 'admin' && client) {
+    return <AdminDashboard adminEmail={client.full_name} />
   }
 
   if (screen === 'projects' && client) {
