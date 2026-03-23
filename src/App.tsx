@@ -5,6 +5,7 @@ import ProjectSelector from './components/ProjectSelector'
 import ProjectDashboard from './components/ProjectDashboard'
 import AdminDashboard from './components/AdminDashboard'
 import Offboarding from './components/Offboarding'
+import ScheduleCall from './components/ScheduleCall'
 
 interface Client {
   id: string
@@ -21,7 +22,7 @@ interface Project {
   started_at: string
 }
 
-type Screen = 'login' | 'projects' | 'dashboard' | 'admin'
+type Screen = 'login' | 'projects' | 'dashboard' | 'admin' | 'schedule'
 
 const styles: Record<string, CSSProperties> = {
   page: {
@@ -154,6 +155,16 @@ export default function App() {
           setSelectedProject(project)
           setScreen('dashboard')
         }}
+        onSchedule={() => setScreen('schedule')}
+      />
+    )
+  }
+
+  if (screen === 'schedule' && client) {
+    return (
+      <ScheduleCall
+        clientName={client.full_name}
+        onNavigate={(tab) => setScreen(tab === 'projects' ? 'projects' : 'schedule')}
       />
     )
   }
