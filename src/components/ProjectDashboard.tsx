@@ -205,25 +205,7 @@ export default function ProjectDashboard({ project, clientId, onBack }: Props) {
     )
   }
 
-  if (screen === 'dashboard' && client && selectedProject) {
-    if (selectedProject.status === 'completed') {
-      return (
-        <Offboarding
-          project={selectedProject}
-          clientName={client.full_name}
-          onSubmitSurvey={() => setScreen('projects')}
-        />
-      )
-    }
-    return (
-      <ProjectDashboard
-        project={selectedProject}
-        clientId={client.id}
-        clientName={client.full_name}
-        onBack={() => setScreen('projects')}
-      />
-    )
-  }
+
 
   return (
     <div style={styles.page}>
