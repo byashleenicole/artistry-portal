@@ -22,6 +22,8 @@ interface Props {
   project: Project
   clientName: string
   onSubmitSurvey: () => void
+  onBack: () => void
+  onSchedule: () => void
 }
 
 const styles: Record<string, CSSProperties> = {
@@ -51,7 +53,7 @@ const styles: Record<string, CSSProperties> = {
   thankYouSub: { fontSize: '14px', color: '#0f6e56' },
 }
 
-export default function Offboarding({ project, clientName, onSubmitSurvey }: Props) {
+export default function Offboarding({ project, clientName, onSubmitSurvey, onBack, onSchedule }: Props) {
   const [assets, setAssets] = useState<Asset[]>([])
   const [rating, setRating] = useState(0)
   const [hovered, setHovered] = useState(0)
@@ -98,10 +100,13 @@ export default function Offboarding({ project, clientName, onSubmitSurvey }: Pro
   return (
     <div style={styles.page}>
       <ClientHeader
-      clientName={clientName}
-      activeTab="projects"
-      onNavigate={(tab) => { if (tab === 'schedule') onSubmitSurvey() }}
-    />
+  clientName={clientName}
+  activeTab="projects"
+  onNavigate={(tab) => {
+    if (tab === 'schedule') onSchedule()
+    if (tab === 'projects') onBack()
+  }}
+/>
       <div style={styles.inner}>
         <div style={styles.celebration}>
           <div style={styles.check}>✓</div>

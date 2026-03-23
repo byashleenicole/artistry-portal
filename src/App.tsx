@@ -173,10 +173,12 @@ export default function App() {
     if (selectedProject.status === 'completed') {
       return (
         <Offboarding
-          project={selectedProject}
-          clientName={client.full_name}
-          onSubmitSurvey={() => setScreen('projects')}
-        />
+    project={selectedProject}
+    clientName={client.full_name}
+    onSubmitSurvey={() => setScreen('projects')}
+    onBack={() => setScreen('projects')}
+    onSchedule={() => setScreen('schedule')}
+  />
       )
     }
     return (
