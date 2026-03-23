@@ -3,7 +3,7 @@ import ClientHeader from './ClientHeader'
 
 interface Props {
   clientName: string
-  onNavigate: (tab: 'projects' | 'schedule') => void
+  onNavigate: (tab: 'projects' | 'schedule' | 'profile') => void
 }
 
 const s: Record<string, CSSProperties> = {
