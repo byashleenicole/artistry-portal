@@ -33,7 +33,7 @@ export default function NewClientForm({ onCreated }: Props) {
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [company, setCompany] = useState('')
-  const [password, setPassword] = useState('')
+  const [authUserId, setAuthUserId] = useState('')
   const [projectName, setProjectName] = useState('')
   const [packageType, setPackageType] = useState('Brand Identity')
   const [loading, setLoading] = useState(false)
@@ -45,21 +45,10 @@ export default function NewClientForm({ onCreated }: Props) {
     setLoading(true)
     setError(null)
 
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-    })
-
-    if (authError || !authData.user) {
-      setError(authError?.message || 'Failed to create auth user')
-      setLoading(false)
-      return
-    }
 
     const { data: clientData, error: clientError } = await supabase
       .from('clients')
-      .insert({ full_name: fullName, email, company_name: company, auth_user_id: authData.user.id, status: 'active' })
+      .insert({ full_name: fullName, email, company_name: company, auth_user_id: authUserId.trim(), status: 'active' })
       .select()
       .single()
 
@@ -95,7 +84,7 @@ export default function NewClientForm({ onCreated }: Props) {
     setFullName('')
     setEmail('')
     setCompany('')
-    setPassword('')
+    setAuthUserId('')
     setProjectName('')
     setTimeout(() => { setSuccess(false); onCreated() }, 2000)
   }
@@ -117,8 +106,8 @@ export default function NewClientForm({ onCreated }: Props) {
           <input style={styles.input} type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="victoria@hope360.com" />
           <label style={styles.label}>Company</label>
           <input style={styles.input} value={company} onChange={e => setCompany(e.target.value)} placeholder="Hope360 Medical" />
-          <label style={styles.label}>Temporary password</label>
-          <input style={styles.input} type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="They can change this after login" />
+          <label style={styles.label}>Auth user ID <span style={styles.labelHint}>paste UUID from Supabase Auth → Users</span></label>
+<input style={styles.input} value={authUserId} onChange={e => setAuthUserId(e.target.value)} required placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" />
         </div>
 
         <div style={styles.card}>
