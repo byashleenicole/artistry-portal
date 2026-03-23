@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { supabase } from '../supabase'
+import ClientHeader from './ClientHeader'
+
 
 interface Project {
   id: string
@@ -95,6 +97,11 @@ export default function Offboarding({ project, clientName, onSubmitSurvey }: Pro
 
   return (
     <div style={styles.page}>
+      <ClientHeader
+      clientName={clientName}
+      activeTab="projects"
+      onNavigate={(tab) => { if (tab === 'schedule') onSubmitSurvey() }}
+    />
       <div style={styles.inner}>
         <div style={styles.celebration}>
           <div style={styles.check}>✓</div>
