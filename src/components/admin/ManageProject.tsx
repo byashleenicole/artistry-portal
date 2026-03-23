@@ -67,13 +67,43 @@ export default function ManageProject({ projectId, onBack }: Props) {
 
   async function updateStageStatus(stageId: string, status: string) {
     await supabase.from('stages').update({ status }).eq('id', stageId)
-    setStages(prev => prev.map(s => s.id === stageId ? { ...s, status } : s))
-
-    const activeStage = stages.find(s => s.id === stageId)
+    setStages(prev => prev.map(st => st.id === stageId ? { ...st, status } : st))
+  
+    const activeStage = stages.find(st => st.id === stageId)
     if (activeStage && status === 'in_progress') {
       await supabase.from('projects').update({
         current_stage: activeStage.name.toLowerCase().replace(/ /g, '_')
       }).eq('id', projectId)
+  
+      const { data: clientData } = await supabase
+        .from('clients')
+        .select('email, full_name')
+        .eq('id', project?.client_id)
+        .single()
+  
+      if (clientData) {
+        const { data: { session } } = await supabase.auth.getSession()
+        await fetch('https://iietasatfqdlgarknhwx.supabase.co/functions/v1/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + session?.access_token,
+          },
+          body: JSON.stringify({
+            to: clientData.email,
+            subject: `Your ${project?.name} project has been updated`,
+            html: `
+              <div style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 24px;">
+                <div style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #888780; margin-bottom: 8px;">Artistry Studios®</div>
+                <h1 style="font-size: 22px; font-weight: 500; color: #2c2c2a; margin-bottom: 8px;">New stage unlocked</h1>
+                <p style="font-size: 15px; color: #5f5e5a; margin-bottom: 24px;">Hi ${clientData.full_name}, your <strong>${project?.name}</strong> project has moved to the <strong>${activeStage.name}</strong> stage.</p>
+                <a href="https://artistrystudios.netlify.app" style="display: inline-block; padding: 12px 24px; background-color: #2c2c2a; color: #fff; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500;">View your portal</a>
+                <p style="font-size: 12px; color: #888780; margin-top: 32px;">Log in to review the latest deliverables and leave feedback.</p>
+              </div>
+            `,
+          }),
+        })
+      }
     }
   }
 

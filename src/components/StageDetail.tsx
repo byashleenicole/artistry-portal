@@ -92,6 +92,29 @@ function AssetCard({ asset, clientId }: { asset: Asset; clientId: string }) {
       body: body.trim(),
       type,
     })
+  
+    const { data: { session } } = await supabase.auth.getSession()
+    await fetch('https://iietasatfqdlgarknhwx.supabase.co/functions/v1/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + session?.access_token,
+      },
+      body: JSON.stringify({
+        to: 'hey@byashleenicole.com',
+        subject: type === 'revision_request' ? 'Revision request from your client' : 'New comment on your project',
+        html: `
+          <div style="font-family: system-ui, sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 24px;">
+            <div style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #888780; margin-bottom: 8px;">Artistry Studios® — Portal</div>
+            <h1 style="font-size: 22px; font-weight: 500; color: #2c2c2a; margin-bottom: 8px;">${type === 'revision_request' ? 'Revision requested' : 'New note'}</h1>
+            <p style="font-size: 15px; color: #5f5e5a; margin-bottom: 16px;">A client left feedback on <strong>${asset.label}</strong>:</p>
+            <div style="background: #faf9f7; border: 0.5px solid #d3d1c7; border-radius: 8px; padding: 16px; font-size: 14px; color: #2c2c2a; margin-bottom: 24px;">${body.trim()}</div>
+            <a href="https://artistrystudios.netlify.app" style="display: inline-block; padding: 12px 24px; background-color: #2c2c2a; color: #fff; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 500;">View in admin dashboard</a>
+          </div>
+        `,
+      }),
+    })
+  
     setBody('')
     await loadComments()
     setSubmitting(false)
