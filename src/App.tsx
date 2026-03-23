@@ -6,6 +6,7 @@ import ProjectDashboard from './components/ProjectDashboard'
 import AdminDashboard from './components/AdminDashboard'
 import Offboarding from './components/Offboarding'
 import ScheduleCall from './components/ScheduleCall'
+import Profile from './components/Profile'
 
 interface Client {
   id: string
@@ -22,7 +23,7 @@ interface Project {
   started_at: string
 }
 
-type Screen = 'login' | 'projects' | 'dashboard' | 'admin' | 'schedule'
+type Screen = 'login' | 'projects' | 'dashboard' | 'admin' | 'schedule' | 'profile'
 
 const styles: Record<string, CSSProperties> = {
   page: {
@@ -156,6 +157,7 @@ export default function App() {
           setScreen('dashboard')
         }}
         onSchedule={() => setScreen('schedule')}
+        onProfile={() => setScreen('profile')}
       />
     )
   }
@@ -164,7 +166,17 @@ export default function App() {
     return (
       <ScheduleCall
         clientName={client.full_name}
-        onNavigate={(tab) => setScreen(tab === 'projects' ? 'projects' : 'schedule')}
+        onNavigate={(tab) => setScreen(tab)}
+      />
+    )
+  }
+
+  if (screen === 'profile' && client) {
+    return (
+      <Profile
+        clientId={client.id}
+        clientName={client.full_name}
+        onNavigate={(tab) => setScreen(tab)}
       />
     )
   }
@@ -173,12 +185,13 @@ export default function App() {
     if (selectedProject.status === 'completed') {
       return (
         <Offboarding
-    project={selectedProject}
-    clientName={client.full_name}
-    onSubmitSurvey={() => setScreen('projects')}
-    onBack={() => setScreen('projects')}
-    onSchedule={() => setScreen('schedule')}
-  />
+          project={selectedProject}
+          clientName={client.full_name}
+          onSubmitSurvey={() => setScreen('projects')}
+          onBack={() => setScreen('projects')}
+          onSchedule={() => setScreen('schedule')}
+          onProfile={() => setScreen('profile')}
+        />
       )
     }
     return (
@@ -188,6 +201,7 @@ export default function App() {
         clientName={client.full_name}
         onBack={() => setScreen('projects')}
         onSchedule={() => setScreen('schedule')}
+        onProfile={() => setScreen('profile')}
       />
     )
   }

@@ -3,7 +3,6 @@ import type { CSSProperties } from 'react'
 import { supabase } from '../supabase'
 import ClientHeader from './ClientHeader'
 
-
 interface Project {
   id: string
   name: string
@@ -24,12 +23,13 @@ interface Props {
   onSubmitSurvey: () => void
   onBack: () => void
   onSchedule: () => void
+  onProfile: () => void
 }
 
 const styles: Record<string, CSSProperties> = {
-  page: { minHeight: '100vh', backgroundColor: '#faf9f7', fontFamily: 'system-ui, sans-serif', padding: '40px 24px' },
-  inner: { maxWidth: '600px', margin: '0 auto' },
-  celebration: { textAlign: 'center', padding: '48px 0 40px', borderBottom: '0.5px solid #f1efea', marginBottom: '40px' },
+  page: { minHeight: '100vh', backgroundColor: '#faf9f7', fontFamily: 'system-ui, sans-serif' },
+  inner: { maxWidth: '600px', margin: '0 auto', padding: '40px 24px' },
+  celebration: { textAlign: 'center' as const, padding: '48px 0 40px', borderBottom: '0.5px solid #f1efea', marginBottom: '40px' },
   check: { width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#e1f5ee', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: '22px' },
   eyebrow: { fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#888780', marginBottom: '8px' },
   heading: { fontSize: '28px', fontWeight: '500', color: '#2c2c2a', marginBottom: '8px' },
@@ -46,14 +46,14 @@ const styles: Record<string, CSSProperties> = {
   label: { display: 'block', fontSize: '12px', color: '#5f5e5a', marginBottom: '6px', fontWeight: '500' },
   textarea: { width: '100%', padding: '10px 12px', borderRadius: '8px', border: '0.5px solid #d3d1c7', fontSize: '14px', color: '#2c2c2a', backgroundColor: '#faf9f7', resize: 'vertical' as const, minHeight: '100px', boxSizing: 'border-box' as const, fontFamily: 'system-ui, sans-serif', outline: 'none', marginBottom: '16px' },
   stars: { display: 'flex', gap: '8px', marginBottom: '20px' },
-  star: { fontSize: '24px', cursor: 'pointer', transition: 'transform 0.1s' },
+  star: { fontSize: '24px', cursor: 'pointer' },
   submitBtn: { padding: '11px 28px', borderRadius: '8px', border: 'none', backgroundColor: '#2c2c2a', color: '#faf9f7', fontSize: '14px', fontWeight: '500', cursor: 'pointer' },
   thankYou: { textAlign: 'center' as const, padding: '32px', backgroundColor: '#e1f5ee', borderRadius: '12px', marginTop: '40px' },
   thankYouHeading: { fontSize: '18px', fontWeight: '500', color: '#0f6e56', marginBottom: '8px' },
   thankYouSub: { fontSize: '14px', color: '#0f6e56' },
 }
 
-export default function Offboarding({ project, clientName, onSubmitSurvey, onBack, onSchedule }: Props) {
+export default function Offboarding({ project, clientName, onSubmitSurvey, onBack, onSchedule, onProfile }: Props) {
   const [assets, setAssets] = useState<Asset[]>([])
   const [rating, setRating] = useState(0)
   const [hovered, setHovered] = useState(0)
@@ -67,16 +67,13 @@ export default function Offboarding({ project, clientName, onSubmitSurvey, onBac
         .from('stages')
         .select('id')
         .eq('project_id', project.id)
-
       if (!stages) return
-
       const stageIds = stages.map(s => s.id)
       const { data } = await supabase
         .from('assets')
         .select('*')
         .in('stage_id', stageIds)
         .order('uploaded_at', { ascending: true })
-
       setAssets(data || [])
     }
     loadAssets()
@@ -100,13 +97,14 @@ export default function Offboarding({ project, clientName, onSubmitSurvey, onBac
   return (
     <div style={styles.page}>
       <ClientHeader
-  clientName={clientName}
-  activeTab="projects"
-  onNavigate={(tab) => {
-    if (tab === 'schedule') onSchedule()
-    if (tab === 'projects') onBack()
-  }}
-/>
+        clientName={clientName}
+        activeTab="projects"
+        onNavigate={(tab) => {
+          if (tab === 'schedule') onSchedule()
+          if (tab === 'profile') onProfile()
+          if (tab === 'projects') onBack()
+        }}
+      />
       <div style={styles.inner}>
         <div style={styles.celebration}>
           <div style={styles.check}>✓</div>
@@ -118,13 +116,11 @@ export default function Offboarding({ project, clientName, onSubmitSurvey, onBac
         </div>
 
         <div style={styles.sectionLabel}>Your final assets</div>
-
         {assets.length === 0 && (
           <div style={{ fontSize: '13px', color: '#888780', padding: '20px', textAlign: 'center' }}>
             Assets are being prepared. Check back shortly!
           </div>
         )}
-
         {assets.map(asset => (
           <div key={asset.id} style={styles.assetRow}>
             <div>
@@ -146,7 +142,6 @@ export default function Offboarding({ project, clientName, onSubmitSurvey, onBac
           <div style={styles.surveyCard}>
             <div style={styles.surveyHeading}>How was your experience?</div>
             <div style={styles.surveySub}>Your feedback helps Artistry Studios keep growing.</div>
-
             <label style={styles.label}>Rating</label>
             <div style={styles.stars}>
               {[1, 2, 3, 4, 5].map(n => (
@@ -161,7 +156,6 @@ export default function Offboarding({ project, clientName, onSubmitSurvey, onBac
                 </span>
               ))}
             </div>
-
             <label style={styles.label}>Share your experience (optional)</label>
             <textarea
               style={styles.textarea}
@@ -169,7 +163,6 @@ export default function Offboarding({ project, clientName, onSubmitSurvey, onBac
               value={testimonial}
               onChange={e => setTestimonial(e.target.value)}
             />
-
             <button
               style={{ ...styles.submitBtn, opacity: rating ? 1 : 0.5 }}
               onClick={handleSubmit}

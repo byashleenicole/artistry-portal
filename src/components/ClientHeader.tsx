@@ -3,8 +3,8 @@ import { supabase } from '../supabase'
 
 interface Props {
   clientName: string
-  activeTab?: 'projects' | 'schedule'
-  onNavigate?: (tab: 'projects' | 'schedule') => void
+  activeTab?: 'projects' | 'schedule' | 'profile'
+  onNavigate?: (tab: 'projects' | 'schedule' | 'profile') => void
 }
 
 const s: Record<string, CSSProperties> = {
@@ -47,6 +47,12 @@ export default function ClientHeader({ clientName, activeTab, onNavigate }: Prop
           >
             Schedule a call
           </button>
+          <button
+  style={activeTab === 'profile' ? s.navBtnActive : s.navBtn}
+  onClick={() => onNavigate('profile')}
+>
+  My profile
+</button>
         </div>
       )}
     </div>
