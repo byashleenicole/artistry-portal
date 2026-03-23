@@ -1,6 +1,7 @@
-import type { CSSProperties } from 'react'
 import { useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { supabase } from '../supabase'
+import ClientHeader from './ClientHeader'
 
 interface Project {
   id: string
@@ -15,106 +16,22 @@ interface Props {
   clientId: string
   clientName: string
   onSelectProject: (project: Project) => void
+  onSchedule: () => void
 }
 
 const styles: Record<string, CSSProperties> = {
-  page: {
-    minHeight: '100vh',
-    backgroundColor: '#faf9f7',
-    fontFamily: 'system-ui, sans-serif',
-    padding: '40px 24px',
-  },
-  header: {
-    maxWidth: '600px',
-    margin: '0 auto 32px',
-  },
-  eyebrow: {
-    fontSize: '11px',
-    letterSpacing: '0.1em',
-    textTransform: 'uppercase',
-    color: '#888780',
-    marginBottom: '8px',
-  },
-  heading: {
-    fontSize: '22px',
-    fontWeight: '500',
-    color: '#2c2c2a',
-    marginBottom: '4px',
-  },
-  sub: {
-    fontSize: '14px',
-    color: '#888780',
-  },
-  grid: {
-    maxWidth: '600px',
-    margin: '0 auto',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
-  },
-  card: {
-    backgroundColor: '#fff',
-    border: '0.5px solid #d3d1c7',
-    borderRadius: '12px',
-    padding: '20px 24px',
-    cursor: 'pointer',
-    transition: 'border-color 0.15s',
-  },
-  cardTop: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: '12px',
-  },
-  projectName: {
-    fontSize: '16px',
-    fontWeight: '500',
-    color: '#2c2c2a',
-    marginBottom: '2px',
-  },
-  packageType: {
-    fontSize: '12px',
-    color: '#888780',
-  },
-  stagePill: {
-    fontSize: '11px',
-    padding: '3px 10px',
-    borderRadius: '20px',
-    backgroundColor: '#e1f5ee',
-    color: '#0f6e56',
-    fontWeight: '500',
-    whiteSpace: 'nowrap',
-  },
-  progressBar: {
-    height: '4px',
-    borderRadius: '2px',
-    backgroundColor: '#f1efea',
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: '2px',
-    backgroundColor: '#2c2c2a',
-    transition: 'width 0.3s ease',
-  },
-  progressLabel: {
-    fontSize: '11px',
-    color: '#888780',
-    marginTop: '6px',
-    textAlign: 'right',
-  },
-  empty: {
-    textAlign: 'center',
-    padding: '48px 24px',
-    color: '#888780',
-    fontSize: '14px',
-  },
-  loading: {
-    textAlign: 'center',
-    padding: '48px 24px',
-    color: '#888780',
-    fontSize: '14px',
-  },
+  page: { minHeight: '100vh', backgroundColor: '#faf9f7', fontFamily: 'system-ui, sans-serif' },
+  card: { backgroundColor: '#fff', border: '0.5px solid #d3d1c7', borderRadius: '12px', padding: '20px 24px', marginBottom: '12px', cursor: 'pointer', transition: 'border-color 0.15s' },
+  cardTop: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '12px' },
+  projectName: { fontSize: '16px', fontWeight: '500', color: '#2c2c2a' },
+  packageType: { fontSize: '12px', color: '#888780' },
+  stagePill: { fontSize: '11px', padding: '3px 10px', borderRadius: '20px', backgroundColor: '#e1f5ee', color: '#0f6e56', fontWeight: '500', whiteSpace: 'nowrap' as const },
+  progressBar: { height: '4px', borderRadius: '2px', backgroundColor: '#f1efea', overflow: 'hidden' },
+  progressFill: { height: '100%', borderRadius: '2px', backgroundColor: '#2c2c2a', transition: 'width 0.3s ease' },
+  progressLabel: { fontSize: '11px', color: '#888780', marginTop: '6px', textAlign: 'right' as const },
+  empty: { textAlign: 'center' as const, padding: '48px 24px', color: '#888780', fontSize: '14px' },
+  loading: { textAlign: 'center' as const, padding: '48px 24px', color: '#888780', fontSize: '14px' },
+  sub: { fontSize: '14px', color: '#888780', marginBottom: '24px' },
 }
 
 const stageOrder = ['onboarding', 'kickoff', 'concepts', 'refinement', 'final_review', 'complete']
@@ -129,7 +46,7 @@ function formatStage(stage: string): string {
   return stage.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
-export default function ProjectSelector({ clientId, clientName, onSelectProject }: Props) {
+export default function ProjectSelector({ clientId, clientName, onSelectProject, onSchedule }: Props) {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -148,13 +65,13 @@ export default function ProjectSelector({ clientId, clientName, onSelectProject 
 
   return (
     <div style={styles.page}>
-      <div style={styles.header}>
-        <div style={styles.eyebrow}>Artistry Studios®</div>
-        <div style={styles.heading}>Welcome back, {clientName}</div>
+      <ClientHeader
+        clientName={clientName}
+        activeTab="projects"
+        onNavigate={(tab) => { if (tab === 'schedule') onSchedule() }}
+      />
+      <div style={{ maxWidth: '600px', margin: '0 auto', padding: '40px 24px' }}>
         <div style={styles.sub}>Select a project to view your portal</div>
-      </div>
-
-      <div style={styles.grid}>
         {loading && <div style={styles.loading}>Loading your projects...</div>}
         {!loading && projects.length === 0 && (
           <div style={styles.empty}>No active projects yet. Your designer will set things up shortly.</div>
