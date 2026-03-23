@@ -35,8 +35,8 @@ export default function Profile({ clientId, clientName, onNavigate }: Props) {
   const [saveError, setSaveError] = useState<string | null>(null)
 
   const [, setCurrentPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [changingPassword, setChangingPassword] = useState(false)
+const [newPassword, setNewPassword] = useState('')
+const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordSuccess, setPasswordSuccess] = useState(false)
   const [passwordError, setPasswordError] = useState<string | null>(null)
 
