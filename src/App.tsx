@@ -4,6 +4,7 @@ import { supabase } from './supabase'
 import ProjectSelector from './components/ProjectSelector'
 import ProjectDashboard from './components/ProjectDashboard'
 import AdminDashboard from './components/AdminDashboard'
+import Offboarding from './components/Offboarding'
 
 interface Client {
   id: string
@@ -158,6 +159,15 @@ export default function App() {
   }
 
   if (screen === 'dashboard' && client && selectedProject) {
+    if (selectedProject.status === 'completed') {
+      return (
+        <Offboarding
+          project={selectedProject}
+          clientName={client.full_name}
+          onSubmitSurvey={() => setScreen('projects')}
+        />
+      )
+    }
     return (
       <ProjectDashboard
         project={selectedProject}
